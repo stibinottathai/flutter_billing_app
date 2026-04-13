@@ -5,13 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:billing_app/core/widgets/app_back_button.dart';
+import '../../../product/domain/entities/product.dart';
 import '../../domain/entities/supplier_entity.dart';
 import '../../domain/entities/supplier_purchase_entity.dart';
 import '../../domain/usecases/supplier_purchase_usecases.dart';
 import '../../../product/presentation/bloc/product_bloc.dart';
 import '../../../../core/service_locator.dart' as di;
 
-const _kUnits = ['KG', 'Litre', 'Box', 'Piece'];
+const _kUnits = ['KG', 'Litre', 'Box', 'Piece', 'Piece + KG'];
 
 // ---------------------------------------------------------------------------
 // Internal purchase-item model
@@ -370,12 +371,44 @@ class _ItemRowState extends State<_ItemRow> {
     _searchCtrl.text = product.name;
     widget.item.productId = product.id;
     widget.item.productName = product.name;
+    widget.item.unit = _unitFromProduct(product);
     setState(() => _showDropdown = false);
     _searchFocus.unfocus();
     widget.onChanged();
   }
 
+  String _unitFromProduct(dynamic product) {
+    final unit = product.unit;
+    if (unit is! QuantityUnit) {
+      return widget.item.unit;
+    }
+
+    switch (unit) {
+      case QuantityUnit.kg:
+        return 'KG';
+      case QuantityUnit.liter:
+        return 'Litre';
+      case QuantityUnit.box:
+        return 'Box';
+      case QuantityUnit.pieceWithKg:
+        return 'Piece + KG';
+      case QuantityUnit.piece:
+        return 'Piece';
+    }
+  }
+
   bool get _hasSelection => widget.item.productId.isNotEmpty;
+
+  String get _purchasePriceLabel {
+    if (!_hasSelection) {
+      return 'Purchase Price / Unit';
+    }
+    final unit = widget.item.unit.trim();
+    if (unit.isEmpty) {
+      return 'Purchase Price / Unit';
+    }
+    return 'Purchase Price / $unit';
+  }
 
   InputDecoration _fieldDecor(String label, {String? prefixText}) =>
       InputDecoration(
@@ -634,7 +667,7 @@ class _ItemRowState extends State<_ItemRow> {
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF1E293B)),
                   decoration:
-                      _fieldDecor('Purchase Price / Unit', prefixText: '₹ ')
+                      _fieldDecor(_purchasePriceLabel, prefixText: '₹ ')
                           .copyWith(
                         hintText: '0.00',
                         labelStyle: TextStyle(

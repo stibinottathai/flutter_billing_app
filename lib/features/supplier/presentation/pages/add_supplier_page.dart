@@ -39,6 +39,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
   // context.read (which would fail because context is above the BlocProvider).
   late final SupplierBloc _bloc = di.sl<SupplierBloc>();
   bool _isSubmitting = false;
+  String? _submitError;
 
   @override
   void dispose() {
@@ -50,7 +51,10 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isSubmitting = true);
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
     final supplier = SupplierEntity(
       id: const Uuid().v4(),
       name: _nameCtrl.text.trim(),
@@ -68,19 +72,35 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     if (!mounted) return;
 
     if (resultState.status == SupplierStatus.error) {
-      setState(() => _isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(resultState.error ?? 'Failed to add supplier'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      final errorMessage = _formatErrorMessage(resultState.error);
+      setState(() {
+        _isSubmitting = false;
+        _submitError = errorMessage;
+      });
+      if (!widget.asSheet) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
     } else {
       context.pop();
     }
+  }
+
+  String _formatErrorMessage(String? rawError) {
+    final fallback = 'Failed to add supplier';
+    final message = rawError?.trim();
+    if (message == null || message.isEmpty) return fallback;
+    const prefix = 'Exception: ';
+    return message.startsWith(prefix)
+        ? message.substring(prefix.length).trim()
+        : message;
   }
 
   @override
@@ -217,6 +237,44 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
                       return null;
                     },
                   ),
+                  if (_submitError != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFECACA)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.error_outline_rounded,
+                              color: Color(0xFFB91C1C),
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _submitError!,
+                              style: const TextStyle(
+                                color: Color(0xFFB91C1C),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 12),
@@ -329,6 +387,11 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
   }) {
     return TextFormField(
       controller: controller,
+      onChanged: (_) {
+        if (_submitError != null) {
+          setState(() => _submitError = null);
+        }
+      },
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       validator: validator,

@@ -39,6 +39,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
   final _nameFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
   bool _isSaving = false;
+  String? _submitError;
 
   @override
   void initState() {
@@ -63,7 +64,10 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
 
   void _save() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isSaving = true);
+    setState(() {
+      _isSaving = true;
+      _submitError = null;
+    });
 
     final customer = CustomerEntity(
       id: const Uuid().v4(),
@@ -83,19 +87,35 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
     if (!mounted) return;
 
     if (resultState.status == CustomerStatus.error) {
-      setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(resultState.error ?? 'Failed to add customer'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      final errorMessage = _formatErrorMessage(resultState.error);
+      setState(() {
+        _isSaving = false;
+        _submitError = errorMessage;
+      });
+      if (!widget.asSheet) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
     } else {
       context.pop();
     }
+  }
+
+  String _formatErrorMessage(String? rawError) {
+    final fallback = 'Failed to add customer';
+    final message = rawError?.trim();
+    if (message == null || message.isEmpty) return fallback;
+    const prefix = 'Exception: ';
+    return message.startsWith(prefix)
+        ? message.substring(prefix.length).trim()
+        : message;
   }
 
   @override
@@ -246,6 +266,44 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                       return null;
                     },
                   ),
+                  if (_submitError != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFECACA)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.error_outline_rounded,
+                              color: Color(0xFFB91C1C),
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _submitError!,
+                              style: const TextStyle(
+                                color: Color(0xFFB91C1C),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 12),
@@ -358,6 +416,11 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
   }) {
     return TextFormField(
       controller: controller,
+      onChanged: (_) {
+        if (_submitError != null) {
+          setState(() => _submitError = null);
+        }
+      },
       focusNode: focusNode,
       keyboardType: keyboardType,
       textInputAction: textInputAction,

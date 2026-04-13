@@ -262,10 +262,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: [
                     const Icon(Icons.check_circle_rounded, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text(
-                      isOnline
-                          ? 'Transaction completed successfully'
-                          : 'Transaction saved locally. Will sync when online.',
+                    Expanded(
+                      child: Text(
+                        isOnline
+                          ? 'Transaction saved.'
+                          : 'Saved offline. Will sync later.',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

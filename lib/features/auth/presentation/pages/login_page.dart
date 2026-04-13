@@ -467,68 +467,35 @@ class _LoginPageState extends State<LoginPage>
               ),
 
               const SizedBox(height: 28),
-
-              // ─── Divider ───
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 1,
-                      color: const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'New here?',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13.sp,
-                        color: const Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      height: 1,
-                      color: const Color(0xFFE2E8F0),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // ─── Create Account button ───
-              SizedBox(
+              Container(
                 width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => context.push('/signup'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF1E3A8A),
-                    side: const BorderSide(
-                      color: Color(0xFFCBD5E1),
-                      width: 1.5,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: Color(0xFF1D4ED8),
+                      size: 18,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.person_add_alt_1_rounded, size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Create Account',
-                        style: GoogleFonts.sora(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Contact your administrator to register your account.',
+                        style: GoogleFonts.outfit(
+                          fontSize: 12.sp,
+                          color: const Color(0xFF1E3A8A),
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
 

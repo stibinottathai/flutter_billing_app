@@ -70,6 +70,15 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
+  void _onForgotPasswordPressed() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      context.push('/forgot-password');
+      return;
+    }
+    context.push('/forgot-password?email=${Uri.encodeComponent(email)}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -368,6 +377,26 @@ class _LoginPageState extends State<LoginPage>
                         }
                         return null;
                       },
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: isLoading ? null : _onForgotPasswordPressed,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          'Forgot password?',
+                          style: GoogleFonts.outfit(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1E40AF),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 32),
 

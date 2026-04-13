@@ -12,6 +12,7 @@ import '../../features/billing/presentation/pages/checkout_page.dart';
 import '../../features/product/domain/entities/product.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/billing/presentation/pages/transactions_page.dart';
 import '../../features/billing/presentation/pages/sales_dashboard_page.dart';
 import '../../features/billing/presentation/pages/product_search_page.dart';
@@ -41,6 +42,7 @@ final router = GoRouter(
     final authState = di.sl<AuthBloc>().state;
     final isLoggingIn = state.matchedLocation == '/login';
     final isSigningUp = state.matchedLocation == '/signup';
+    final isForgotPassword = state.matchedLocation == '/forgot-password';
     final isOnboardingCompleted = HiveDatabase.settingsBox
         .get(HiveDatabase.onboardingCompletedKey, defaultValue: false) as bool;
 
@@ -64,9 +66,9 @@ final router = GoRouter(
 
     if (authState.status == AuthStatus.unauthenticated ||
         authState.status == AuthStatus.error) {
-      if (!isLoggingIn && !isSigningUp) return '/login';
+      if (!isLoggingIn && !isSigningUp && !isForgotPassword) return '/login';
     } else if (authState.status == AuthStatus.authenticated) {
-      if (isLoggingIn || isSigningUp) {
+      if (isLoggingIn || isSigningUp || isForgotPassword) {
         return '/';
       }
     }
@@ -90,6 +92,12 @@ final router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (context, state) => const SignUpPage(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) => ForgotPasswordPage(
+        initialEmail: state.uri.queryParameters['email'] ?? '',
+      ),
     ),
     GoRoute(
       path: '/',

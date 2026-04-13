@@ -271,37 +271,18 @@ class _ProductListPageState extends State<ProductListPage> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isOnline
                     ? const Color(0xFF15803D).withValues(alpha: 0.1)
                     : const Color(0xFF64748B).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    isOnline
-                        ? Icons.cloud_done_rounded
-                        : Icons.cloud_off_rounded,
-                    color: isOnline
-                        ? const Color(0xFF15803D)
-                        : const Color(0xFF64748B),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    isOnline ? 'Online' : 'Offline',
-                    style: TextStyle(
-                      color: isOnline
-                          ? const Color(0xFF15803D)
-                          : const Color(0xFF64748B),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
+              child: Icon(
+                isOnline ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+                color:
+                    isOnline ? const Color(0xFF15803D) : const Color(0xFF64748B),
+                size: 16,
               ),
             ),
           ),

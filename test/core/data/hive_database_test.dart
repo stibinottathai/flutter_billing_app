@@ -3,8 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:billing_app/core/data/hive_database.dart';
 import 'package:billing_app/features/product/data/models/product_model.dart';
+import 'package:billing_app/features/product/data/models/category_model.dart';
 import 'package:billing_app/features/billing/data/models/transaction_model.dart';
 import 'package:billing_app/features/shop/data/models/shop_model.dart';
+import 'package:billing_app/features/customer/data/models/customer_model.dart';
+import 'package:billing_app/features/supplier/data/models/supplier_model.dart';
+import 'package:billing_app/features/supplier/data/models/supplier_purchase_model.dart';
 
 void main() {
   setUpAll(() async {
@@ -12,15 +16,26 @@ void main() {
     Hive.init(tempDir.path);
     // Register Adapters
     Hive.registerAdapter(ProductModelAdapter());
+    Hive.registerAdapter(CategoryModelAdapter());
     Hive.registerAdapter(ShopModelAdapter());
     Hive.registerAdapter(TransactionItemModelAdapter());
     Hive.registerAdapter(TransactionModelAdapter());
+    Hive.registerAdapter(CustomerModelAdapter());
+    Hive.registerAdapter(SupplierModelAdapter());
+    Hive.registerAdapter(SupplierPurchaseItemModelAdapter());
+    Hive.registerAdapter(SupplierPurchaseModelAdapter());
 
     // Open Boxes
     await Hive.openBox<ProductModel>(HiveDatabase.productBoxName);
+    await Hive.openBox<CategoryModel>(HiveDatabase.categoryBoxName);
     await Hive.openBox<ShopModel>(HiveDatabase.shopBoxName);
     await Hive.openBox(HiveDatabase.settingsBoxName);
     await Hive.openBox<TransactionModel>(HiveDatabase.transactionBoxName);
+    await Hive.openBox<CustomerModel>(HiveDatabase.customerBoxName);
+    await Hive.openBox<SupplierModel>(HiveDatabase.supplierBoxName);
+    await Hive.openBox<SupplierPurchaseModel>(
+      HiveDatabase.supplierPurchaseBoxName,
+    );
   });
 
   tearDown(() async {

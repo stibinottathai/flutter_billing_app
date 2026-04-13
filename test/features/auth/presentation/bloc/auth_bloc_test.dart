@@ -7,9 +7,12 @@ import 'package:billing_app/features/auth/domain/repositories/auth_repository.da
 import 'package:billing_app/core/error/failure.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:billing_app/features/product/data/models/product_model.dart';
+import 'package:billing_app/features/product/data/models/category_model.dart';
 import 'package:billing_app/features/billing/data/models/transaction_model.dart';
 import 'package:billing_app/features/shop/data/models/shop_model.dart';
 import 'package:billing_app/features/customer/data/models/customer_model.dart';
+import 'package:billing_app/features/supplier/data/models/supplier_model.dart';
+import 'package:billing_app/features/supplier/data/models/supplier_purchase_model.dart';
 
 import 'package:billing_app/features/auth/domain/entities/app_user.dart';
 
@@ -28,7 +31,7 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, AppUser>> signUpWithEmailAndPassword({required String email, required String password, String role = 'user'}) async {
+  Future<Either<Failure, AppUser>> signUpWithEmailAndPassword({required String email, required String password}) async {
     return Left(ServerFailure('Not implemented'));
   }
 
@@ -45,17 +48,26 @@ void main() {
     Hive.init(tempDir.path);
     // Register Adapters
     Hive.registerAdapter(ProductModelAdapter());
+    Hive.registerAdapter(CategoryModelAdapter());
     Hive.registerAdapter(ShopModelAdapter());
     Hive.registerAdapter(TransactionItemModelAdapter());
     Hive.registerAdapter(TransactionModelAdapter());
     Hive.registerAdapter(CustomerModelAdapter());
+    Hive.registerAdapter(SupplierModelAdapter());
+    Hive.registerAdapter(SupplierPurchaseItemModelAdapter());
+    Hive.registerAdapter(SupplierPurchaseModelAdapter());
 
     // Open Boxes
     await Hive.openBox<ProductModel>(HiveDatabase.productBoxName);
+    await Hive.openBox<CategoryModel>(HiveDatabase.categoryBoxName);
     await Hive.openBox<ShopModel>(HiveDatabase.shopBoxName);
     await Hive.openBox(HiveDatabase.settingsBoxName);
     await Hive.openBox<TransactionModel>(HiveDatabase.transactionBoxName);
     await Hive.openBox<CustomerModel>(HiveDatabase.customerBoxName);
+    await Hive.openBox<SupplierModel>(HiveDatabase.supplierBoxName);
+    await Hive.openBox<SupplierPurchaseModel>(
+      HiveDatabase.supplierPurchaseBoxName,
+    );
   });
 
   tearDown(() async {

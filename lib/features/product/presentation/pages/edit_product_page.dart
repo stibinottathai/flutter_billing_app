@@ -26,6 +26,7 @@ class EditProductPage extends StatefulWidget {
 class _EditProductPageState extends State<EditProductPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
+  late String _barcode;
   late double _price;
   late int _stock;
   late QuantityUnit _unit;
@@ -35,10 +36,20 @@ class _EditProductPageState extends State<EditProductPage> {
   void initState() {
     super.initState();
     _name = widget.product.name;
+    _barcode = widget.product.barcode;
     _price = widget.product.price;
     _stock = widget.product.stock;
     _unit = widget.product.unit;
     _categoryId = widget.product.categoryId;
+  }
+
+  void _scanBarcode() async {
+    final result = await context.push<String>('/scanner');
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        _barcode = result;
+      });
+    }
   }
 
   void _submit() {
@@ -47,6 +58,7 @@ class _EditProductPageState extends State<EditProductPage> {
 
       final updatedProduct = widget.product.copyWith(
         name: _name,
+        barcode: _barcode,
         price: _price,
         stock: _stock,
         unit: _unit,
@@ -85,60 +97,98 @@ class _EditProductPageState extends State<EditProductPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Display Barcode details (immutable block)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.only(bottom: 32),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border:
-                        Border.all(color: const Color(0xFFF1F5F9), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                          color:
-                              const Color(0xFF0F172A).withValues(alpha: 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4))
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                if (widget.product.barcode.trim().isNotEmpty)
+                  // Display barcode details as read-only if already linked.
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.only(bottom: 32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border:
+                          Border.all(color: const Color(0xFFF1F5F9), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                            color:
+                                const Color(0xFF0F172A).withValues(alpha: 0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4))
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color:
+                                AppTheme.primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.qr_code_2_rounded,
+                              color: AppTheme.primaryColor, size: 28),
                         ),
-                        child: const Icon(Icons.qr_code_2_rounded,
-                            color: AppTheme.primaryColor, size: 28),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('LINKED BARCODE',
+                                  style: TextStyle(
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF94A3B8),
+                                      letterSpacing: 1.2)),
+                              const SizedBox(height: 4),
+                              Text(widget.product.barcode,
+                                  style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'monospace',
+                                      color: const Color(0xFF1E293B))),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.lock_rounded,
+                            color: Color(0xFFCBD5E1), size: 20),
+                      ],
+                    ),
+                  )
+                else ...[
+                  const InputLabel(text: 'Barcode Number'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          key: ValueKey(_barcode),
+                          initialValue: _barcode,
+                          decoration: const InputDecoration(
+                            hintText: 'Scan or type barcode (optional)',
+                            prefixIcon: Icon(Icons.qr_code_2_rounded,
+                                color: Color(0xFF94A3B8)),
+                          ),
+                          onSaved: (value) => _barcode = value?.trim() ?? '',
+                        ),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('LINKED BARCODE',
-                                style: TextStyle(
-                                    fontSize: 11.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF94A3B8),
-                                    letterSpacing: 1.2)),
-                            const SizedBox(height: 4),
-                            Text(widget.product.barcode,
-                                style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'monospace',
-                                    color: const Color(0xFF1E293B))),
-                          ],
+                      InkWell(
+                        onTap: _scanBarcode,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 56,
+                          width: 56,
+                          decoration: BoxDecoration(
+                            color:
+                                AppTheme.primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.document_scanner_rounded,
+                              color: AppTheme.primaryColor),
                         ),
                       ),
-                      const Icon(Icons.lock_rounded,
-                          color: Color(0xFFCBD5E1), size: 20),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 24),
+                ],
 
                 const InputLabel(text: 'Product Name'),
                 TextFormField(
@@ -251,13 +301,14 @@ class _EditProductPageState extends State<EditProductPage> {
                     // If it changed because of a deletion, update state silently
                     if (effectiveCategoryId != _categoryId) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted)
+                        if (mounted) {
                           setState(() => _categoryId = effectiveCategoryId);
+                        }
                       });
                     }
 
                     return DropdownButtonFormField<String?>(
-                      value: effectiveCategoryId,
+                      initialValue: effectiveCategoryId,
                       decoration: InputDecoration(
                         hintText: 'Select Category',
                         filled: true,

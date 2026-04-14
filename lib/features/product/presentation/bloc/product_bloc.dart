@@ -70,6 +70,19 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   Future<void> _onUpdateProduct(
       UpdateProduct event, Emitter<ProductState> emit) async {
+    final barcode = event.product.barcode.trim();
+    final bool exists = barcode.isNotEmpty &&
+        state.products.any(
+          (p) => p.id != event.product.id && p.barcode.trim() == barcode,
+        );
+    if (exists) {
+      emit(state.copyWith(
+          status: ProductStatus.error,
+          message: 'Item already exists with this barcode'));
+      add(LoadProducts());
+      return;
+    }
+
     emit(state.copyWith(status: ProductStatus.loading));
     final result = await updateProductUseCase(event.product);
     result.fold(

@@ -109,7 +109,7 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
   }
 
   String _formatErrorMessage(String? rawError) {
-    final fallback = 'Failed to add customer';
+    const fallback = 'Failed to add customer';
     final message = rawError?.trim();
     if (message == null || message.isEmpty) return fallback;
     const prefix = 'Exception: ';
@@ -157,10 +157,9 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
+                    AppBackButton(
                       onPressed: () => context.pop(),
-                      icon: const Icon(Icons.close_rounded, color: _ink),
-                      splashRadius: 20,
+                      leftPadding: 0,
                     ),
                   ],
                 ),

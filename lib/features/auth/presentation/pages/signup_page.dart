@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:billing_app/core/widgets/app_back_button.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -190,25 +191,7 @@ class _SignUpPageState extends State<SignUpPage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back button
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.12),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
+              AppBackButton(onPressed: () => context.pop(), leftPadding: 0),
               const SizedBox(height: 22),
               Text(
                 'Create Your\nAccount ✨',

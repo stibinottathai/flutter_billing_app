@@ -17,6 +17,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/hive_database.dart';
 import '../../../../core/service_locator.dart' as di;
 import '../../../../core/services/sync_service.dart';
+import '../../../../core/widgets/app_back_button.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -154,21 +155,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
           elevation: 0,
           centerTitle: false,
           titleSpacing: 8,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Center(
-              child: Material(
-                color: Colors.white,
-                shape: const CircleBorder(),
-                elevation: 2,
-                shadowColor: Colors.black12,
-                child: IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                  color: const Color(0xFF0F172A),
-                  onPressed: () => _handleCheckoutExit(context),
-                ),
-              ),
-            ),
+          leading: AppBackButton(
+            onPressed: () => _handleCheckoutExit(context),
+            leftPadding: 12,
+            icon: Icons.close,
+            iconSize: 18,
           ),
           actions: [
             Padding(

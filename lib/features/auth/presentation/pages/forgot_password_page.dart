@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:billing_app/core/widgets/app_back_button.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   final String initialEmail;
@@ -220,16 +221,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
+              AppBackButton(
                 onPressed: _isSending ? null : () => context.pop(),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.12),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: const Icon(Icons.arrow_back_rounded),
+                leftPadding: 0,
               ),
               const SizedBox(height: 18),
               Container(

@@ -141,7 +141,7 @@ class _SupplierPurchasePageState extends State<SupplierPurchasePage> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         titleSpacing: 4,
-        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 0),
+        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
         title:  Text(
           'Record Purchase',
           style: TextStyle(

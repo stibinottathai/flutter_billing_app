@@ -100,7 +100,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
         elevation: 0,
         centerTitle: false,
         titleSpacing: 8,
-        leading: AppBackButton(onPressed: () => context.pop()),
+        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
       ),
       body: BlocConsumer<ShopBloc, ShopState>(
         listener: (context, state) {

@@ -6,10 +6,14 @@ class AppBackButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.leftPadding = 12,
+    this.icon = Icons.arrow_back_ios_new_rounded,
+    this.iconSize = 16,
   });
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double leftPadding;
+  final IconData icon;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,7 @@ class AppBackButton extends StatelessWidget {
           elevation: 2,
           shadowColor: Colors.black12,
           child: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, size: 16.sp),
+            icon: Icon(icon, size: iconSize.sp),
             color: const Color(0xFF0F172A),
             onPressed: onPressed,
           ),

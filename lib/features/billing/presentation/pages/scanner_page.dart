@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:app_settings/app_settings.dart';
 import 'dart:async';
+import 'package:billing_app/core/widgets/app_back_button.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -53,10 +54,7 @@ class _ScannerPageState extends State<ScannerPage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded, size: 32, color: Colors.white),
-          onPressed: () => context.pop(),
-        ),
+        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
         title: const Text('Scan Product',
             style: TextStyle(
                 fontWeight: FontWeight.bold,

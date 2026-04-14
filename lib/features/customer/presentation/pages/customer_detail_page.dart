@@ -12,6 +12,7 @@ import '../../../../core/data/hive_database.dart';
 import '../../../../core/service_locator.dart';
 import '../../../../core/services/sync_service.dart';
 import '../../../../core/utils/printer_helper.dart';
+import '../../../../core/widgets/app_back_button.dart';
 import '../../../billing/data/models/transaction_model.dart';
 import '../../../billing/domain/repositories/billing_repository.dart';
 import '../../../shop/data/models/shop_model.dart';
@@ -94,7 +95,10 @@ class CustomerDetailPage extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: false,
-                iconTheme: const IconThemeData(color: _ink),
+                leading: AppBackButton(
+                  onPressed: () => context.pop(),
+                  leftPadding: 16,
+                ),
                 actions: [
                   const SizedBox(width: 8),
                   PopupMenuButton<String>(

@@ -252,7 +252,7 @@ class _SettingsPageState extends State<SettingsPage> {
         elevation: 0,
         centerTitle: false,
         titleSpacing: 8,
-        leading: AppBackButton(onPressed: () => context.pop()),
+        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
       ),
       bottomNavigationBar: SafeArea(
         top: false,

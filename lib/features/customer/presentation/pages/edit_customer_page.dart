@@ -144,10 +144,9 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
+                    AppBackButton(
                       onPressed: () => context.pop(),
-                      icon: const Icon(Icons.close_rounded, color: _ink),
-                      splashRadius: 20,
+                      leftPadding: 0,
                     ),
                   ],
                 ),

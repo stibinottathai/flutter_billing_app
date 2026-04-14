@@ -341,7 +341,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
                 titleSpacing: 4,
                 leading: AppBackButton(
                   onPressed: () => context.pop(),
-                  leftPadding: 0,
+                  leftPadding: 16,
                 ),
                 title: const Text(
                   'Add Supplier',

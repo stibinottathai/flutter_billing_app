@@ -511,18 +511,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    AppBackButton(
+                      onPressed: () => Navigator.pop(context),
+                      leftPadding: 0,
+                    ),
+                    const SizedBox(width: 12),
                     Text('Transaction Details',
                         style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5)),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded,
-                          color: Color(0xFF64748B)),
-                    ),
                   ],
                 ),
               ),

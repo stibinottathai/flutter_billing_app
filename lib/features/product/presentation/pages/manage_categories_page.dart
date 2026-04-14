@@ -260,7 +260,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: context.canPop()
-            ? AppBackButton(onPressed: () => context.pop())
+          ? AppBackButton(onPressed: () => context.pop(), leftPadding: 16)
             : null,
         iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
         title: Text(

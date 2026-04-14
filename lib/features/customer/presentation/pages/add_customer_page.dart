@@ -160,6 +160,8 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                     AppBackButton(
                       onPressed: () => context.pop(),
                       leftPadding: 0,
+                      icon: Icons.close,
+                      iconSize: 18,
                     ),
                   ],
                 ),

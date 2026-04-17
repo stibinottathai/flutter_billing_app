@@ -19,7 +19,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
     return HiveDatabase.customerBox.values
         .where((c) => c.userId == userId)
         .map((c) => c.toEntity())
-        .toList();
+        .toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 
   @override
@@ -37,7 +38,8 @@ class CustomerRepositoryImpl implements CustomerRepository {
       (c) => c.userId == userId && c.phone == customer.phone,
     );
     if (existingWithSamePhone) {
-      throw Exception('A customer with phone number ${customer.phone} already exists.');
+      throw Exception(
+          'A customer with phone number ${customer.phone} already exists.');
     }
 
     final model = CustomerModel(
@@ -46,6 +48,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
       phone: customer.phone,
       userId: userId,
       balance: customer.balance,
+      updatedAt: DateTime.now(),
       pendingSync: !_syncService.isOnline,
     );
     await HiveDatabase.customerBox.put(model.id, model);
@@ -65,6 +68,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
       phone: customer.phone,
       userId: userId,
       balance: customer.balance,
+      updatedAt: DateTime.now(),
       pendingSync: !_syncService.isOnline,
     );
     await HiveDatabase.customerBox.put(model.id, model);

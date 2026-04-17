@@ -83,7 +83,10 @@ class _CustomerListPageState extends State<CustomerListPage> {
             context.read<CustomerBloc>().add(LoadCustomersEvent());
           }
         },
-        icon:  Icon(Icons.person_add_rounded,size: 20.w,),
+        icon: Icon(
+          Icons.person_add_rounded,
+          size: 20.w,
+        ),
         label: Text(
           'Add Customer',
           style: TextStyle(
@@ -166,6 +169,8 @@ class _CustomerListPageState extends State<CustomerListPage> {
 
                     final visibleCustomers =
                         _applyDueFilter(_filtered(freshCustomers));
+                    visibleCustomers
+                        .sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
                     if (visibleCustomers.isEmpty) {
                       return _buildEmptyState();

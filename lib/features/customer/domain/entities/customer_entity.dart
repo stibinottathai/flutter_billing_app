@@ -4,14 +4,16 @@ class CustomerEntity {
   final String phone;
   final double balance; // Added balance for ledger
   final bool pendingSync;
+  final DateTime updatedAt;
 
-  const CustomerEntity({
+  CustomerEntity({
     required this.id,
     required this.name,
     required this.phone,
     this.balance = 0.0, // Default to 0
     this.pendingSync = false,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 
   CustomerEntity copyWith({
     String? id,
@@ -19,6 +21,7 @@ class CustomerEntity {
     String? phone,
     double? balance,
     bool? pendingSync,
+    DateTime? updatedAt,
   }) {
     return CustomerEntity(
       id: id ?? this.id,
@@ -26,6 +29,7 @@ class CustomerEntity {
       phone: phone ?? this.phone,
       balance: balance ?? this.balance,
       pendingSync: pendingSync ?? this.pendingSync,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

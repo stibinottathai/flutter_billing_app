@@ -152,13 +152,13 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       FinishTransactionEvent event, Emitter<BillingState> emit) async {
     emit(state.copyWith(clearError: true));
     try {
-      final grandTotal =
-          (state.totalAmount + state.customerDue).toDouble();
+      final grandTotal = (state.totalAmount + state.customerDue).toDouble();
       final normalizedAmountPaid =
           event.amountPaid.clamp(0.0, grandTotal).toDouble();
       // ── GST computation ────────────────────────────────────────────
       final settingsBox = HiveDatabase.settingsBox;
-      final gstEnabled = settingsBox.get('gst_enabled', defaultValue: false) as bool;
+      final gstEnabled =
+          settingsBox.get('gst_enabled', defaultValue: false) as bool;
       final gstRate = gstEnabled
           ? (settingsBox.get('gst_rate', defaultValue: 0.0) as num).toDouble()
           : 0.0;
@@ -206,12 +206,16 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
 
       // Update customer balance if applicable
       if (state.customerId.isNotEmpty) {
-        final newBalance =
-            (grandTotal - normalizedAmountPaid).clamp(0.0, grandTotal).toDouble();
+        final newBalance = (grandTotal - normalizedAmountPaid)
+            .clamp(0.0, grandTotal)
+            .toDouble();
         final existingModel = HiveDatabase.customerBox.get(state.customerId);
         if (existingModel != null) {
-          final updated =
-              existingModel.copyWith(balance: newBalance, pendingSync: true);
+          final updated = existingModel.copyWith(
+            balance: newBalance,
+            pendingSync: true,
+            updatedAt: DateTime.now(),
+          );
           await HiveDatabase.customerBox.put(state.customerId, updated);
           // Push to Firestore immediately in the background.
           unawaited(sl<SyncService>().pushCustomer(updated));
@@ -268,19 +272,18 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     }
     // ─────────────────────────────────────────────────────────────────────
 
-
     emit(state.copyWith(
         isPrinting: true, printSuccess: false, clearError: true));
 
     try {
-      final grandTotal =
-          (state.totalAmount + state.customerDue).toDouble();
+      final grandTotal = (state.totalAmount + state.customerDue).toDouble();
       final normalizedAmountPaid =
           event.amountPaid.clamp(0.0, grandTotal).toDouble();
 
       // ── GST computation ────────────────────────────────────────────
       final settingsBox = HiveDatabase.settingsBox;
-      final gstEnabled = settingsBox.get('gst_enabled', defaultValue: false) as bool;
+      final gstEnabled =
+          settingsBox.get('gst_enabled', defaultValue: false) as bool;
       final gstRate = gstEnabled
           ? (settingsBox.get('gst_rate', defaultValue: 0.0) as num).toDouble()
           : 0.0;
@@ -339,12 +342,16 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
 
       // ── 3. Update customer balance ──────────────────────────────────
       if (state.customerId.isNotEmpty) {
-        final newBalance =
-            (grandTotal - normalizedAmountPaid).clamp(0.0, grandTotal).toDouble();
+        final newBalance = (grandTotal - normalizedAmountPaid)
+            .clamp(0.0, grandTotal)
+            .toDouble();
         final existingModel = HiveDatabase.customerBox.get(state.customerId);
         if (existingModel != null) {
-          final updated =
-              existingModel.copyWith(balance: newBalance, pendingSync: true);
+          final updated = existingModel.copyWith(
+            balance: newBalance,
+            pendingSync: true,
+            updatedAt: DateTime.now(),
+          );
           await HiveDatabase.customerBox.put(state.customerId, updated);
           // Push to Firestore immediately in the background.
           unawaited(sl<SyncService>().pushCustomer(updated));

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 import '../../domain/entities/customer_entity.dart';
 
@@ -23,6 +24,9 @@ class CustomerModel extends HiveObject {
   @HiveField(5, defaultValue: 0.0)
   final double balance; // Added for Customer Ledger
 
+  @HiveField(6)
+  final DateTime updatedAt;
+
   CustomerModel({
     required this.id,
     required this.name,
@@ -30,9 +34,11 @@ class CustomerModel extends HiveObject {
     this.userId = '',
     this.pendingSync = false,
     this.balance = 0.0,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 
-  factory CustomerModel.fromEntity(CustomerEntity entity, {String userId = ''}) {
+  factory CustomerModel.fromEntity(CustomerEntity entity,
+      {String userId = ''}) {
     return CustomerModel(
       id: entity.id,
       name: entity.name,
@@ -40,6 +46,7 @@ class CustomerModel extends HiveObject {
       userId: userId,
       pendingSync: entity.pendingSync,
       balance: entity.balance,
+      updatedAt: entity.updatedAt,
     );
   }
 
@@ -50,6 +57,7 @@ class CustomerModel extends HiveObject {
       phone: map['phone'] as String? ?? '',
       userId: map['userId'] as String? ?? '',
       balance: (map['balance'] as num?)?.toDouble() ?? 0.0,
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       pendingSync: false,
     );
   }
@@ -60,6 +68,7 @@ class CustomerModel extends HiveObject {
         'phone': phone,
         'userId': userId,
         'balance': balance,
+        'updatedAt': Timestamp.fromDate(updatedAt),
       };
 
   CustomerEntity toEntity() => CustomerEntity(
@@ -68,6 +77,7 @@ class CustomerModel extends HiveObject {
         phone: phone,
         balance: balance,
         pendingSync: pendingSync,
+        updatedAt: updatedAt,
       );
 
   CustomerModel copyWith({
@@ -77,6 +87,7 @@ class CustomerModel extends HiveObject {
     String? userId,
     bool? pendingSync,
     double? balance,
+    DateTime? updatedAt,
   }) {
     return CustomerModel(
       id: id ?? this.id,
@@ -85,6 +96,7 @@ class CustomerModel extends HiveObject {
       userId: userId ?? this.userId,
       pendingSync: pendingSync ?? this.pendingSync,
       balance: balance ?? this.balance,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

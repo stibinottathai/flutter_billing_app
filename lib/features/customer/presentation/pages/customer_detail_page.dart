@@ -1235,14 +1235,14 @@ class CustomerDetailPage extends StatelessWidget {
 
     // Color theme for this transaction
     final headerGrad = isPayment
-      ? [const Color(0xFF22C55E), const Color(0xFF15803D)]
-      : isDueAdded
-        ? [const Color(0xFFF59E0B), const Color(0xFFD97706)]
-        : isSettled
-          ? [const Color(0xFF10B981), const Color(0xFF059669)]
-          : isPartial
+        ? [const Color(0xFF22C55E), const Color(0xFF15803D)]
+        : isDueAdded
             ? [const Color(0xFFF59E0B), const Color(0xFFD97706)]
-            : [const Color(0xFFEF4444), const Color(0xFFDC2626)];
+            : isSettled
+                ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                : isPartial
+                    ? [const Color(0xFFF59E0B), const Color(0xFFD97706)]
+                    : [const Color(0xFFEF4444), const Color(0xFFDC2626)];
 
     showModalBottomSheet(
       context: context,
@@ -1717,7 +1717,8 @@ class CustomerDetailPage extends StatelessWidget {
                       label: const Text('Edit'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _accent,
-                        side: BorderSide(color: _accent.withValues(alpha: 0.25)),
+                        side:
+                            BorderSide(color: _accent.withValues(alpha: 0.25)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -1755,8 +1756,8 @@ class CustomerDetailPage extends StatelessWidget {
                         onPressed: () => _printTransaction(context, tx),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _accent,
-                          side:
-                              BorderSide(color: _accent.withValues(alpha: 0.25)),
+                          side: BorderSide(
+                              color: _accent.withValues(alpha: 0.25)),
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1777,9 +1778,8 @@ class CustomerDetailPage extends StatelessWidget {
   }
 
   Widget _editedPill({bool onDark = false}) {
-    final bg = onDark
-        ? Colors.white.withValues(alpha: 0.2)
-        : const Color(0xFFEEF2FF);
+    final bg =
+        onDark ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFEEF2FF);
     final fg = onDark ? Colors.white : const Color(0xFF3730A3);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -1913,7 +1913,11 @@ class CustomerDetailPage extends StatelessWidget {
     final isPayment = _isPaymentOnlyTransaction(tx);
     final isDueAdded = _isDueAdditionTransaction(tx);
     final amountController = TextEditingController(
-      text: (isPayment ? tx.amountPaid : isDueAdded ? tx.totalAmount : tx.amountPaid)
+      text: (isPayment
+              ? tx.amountPaid
+              : isDueAdded
+                  ? tx.totalAmount
+                  : tx.amountPaid)
           .toStringAsFixed(2),
     );
     final formKey = GlobalKey<FormState>();
@@ -1976,8 +1980,8 @@ class CustomerDetailPage extends StatelessWidget {
                         key: formKey,
                         child: TextFormField(
                           controller: amountController,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           decoration: InputDecoration(
                             labelText: amountLabel,
                             prefixText: 'Rs ',
@@ -1990,7 +1994,9 @@ class CustomerDetailPage extends StatelessWidget {
                             if (value == null || value <= 0) {
                               return 'Enter a valid amount';
                             }
-                            if (!isPayment && !isDueAdded && value > tx.totalAmount) {
+                            if (!isPayment &&
+                                !isDueAdded &&
+                                value > tx.totalAmount) {
                               return 'Amount paid cannot exceed bill total';
                             }
                             return null;
@@ -2008,9 +2014,11 @@ class CustomerDetailPage extends StatelessWidget {
                             ),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                            DropdownMenuItem(
+                                value: 'cash', child: Text('Cash')),
                             DropdownMenuItem(value: 'upi', child: Text('UPI')),
-                            DropdownMenuItem(value: 'card', child: Text('Card')),
+                            DropdownMenuItem(
+                                value: 'card', child: Text('Card')),
                           ],
                           onChanged: (value) {
                             if (value != null) {
@@ -2025,7 +2033,8 @@ class CustomerDetailPage extends StatelessWidget {
                             child: OutlinedButton(
                               onPressed: () => Navigator.pop(ctx, false),
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2044,21 +2053,24 @@ class CustomerDetailPage extends StatelessWidget {
                                       }
                                       setState(() => isSaving = true);
 
-                                      final amount =
-                                          double.parse(amountController.text.trim());
+                                      final amount = double.parse(
+                                          amountController.text.trim());
                                       final updated = tx.copyWith(
                                         amountPaid: isDueAdded
-                                          ? 0.0
-                                          : isPayment
-                                            ? amount
-                                            : amount
-                                              .clamp(0.0, tx.totalAmount)
-                                              .toDouble(),
+                                            ? 0.0
+                                            : isPayment
+                                                ? amount
+                                                : amount
+                                                    .clamp(0.0, tx.totalAmount)
+                                                    .toDouble(),
                                         totalAmount: isPayment
-                                          ? 0.0
-                                          : (isDueAdded ? amount : tx.totalAmount),
-                                        paymentMethod:
-                                            isDueAdded ? 'due_addition' : method,
+                                            ? 0.0
+                                            : (isDueAdded
+                                                ? amount
+                                                : tx.totalAmount),
+                                        paymentMethod: isDueAdded
+                                            ? 'due_addition'
+                                            : method,
                                         isEdited: true,
                                         pendingSync: true,
                                       );
@@ -2077,7 +2089,8 @@ class CustomerDetailPage extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _accent,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2262,6 +2275,7 @@ class CustomerDetailPage extends StatelessWidget {
     final updated = customerModel.copyWith(
       balance: balance < 0 ? 0.0 : balance,
       pendingSync: true,
+      updatedAt: DateTime.now(),
     );
     await HiveDatabase.customerBox.put(customerId, updated);
     unawaited(sl<SyncService>().pushCustomer(updated));
@@ -2277,13 +2291,12 @@ class CustomerDetailPage extends StatelessWidget {
   Future<void> _printTransaction(
       BuildContext context, TransactionModel tx) async {
     final printerHelper = PrinterHelper();
-    final billDue =
-      (tx.totalAmount - tx.amountPaid.clamp(0.0, tx.totalAmount))
+    final billDue = (tx.totalAmount - tx.amountPaid.clamp(0.0, tx.totalAmount))
         .clamp(0.0, double.infinity)
         .toDouble();
     final totalCustomerDue = _customerDueAfterTransaction(tx);
     final prevDueForPrint =
-      (totalCustomerDue - billDue).clamp(0.0, double.infinity).toDouble();
+        (totalCustomerDue - billDue).clamp(0.0, double.infinity).toDouble();
 
     // Get shop info from Hive
     final shopBox = HiveDatabase.shopBox;
@@ -2536,11 +2549,12 @@ class CustomerDetailPage extends StatelessWidget {
                                     final updated = existingModel.copyWith(
                                       balance: existingModel.balance + amount,
                                       pendingSync: true,
+                                      updatedAt: DateTime.now(),
                                     );
                                     await HiveDatabase.customerBox
                                         .put(customer.id, updated);
-                                    unawaited(
-                                        sl<SyncService>().pushCustomer(updated));
+                                    unawaited(sl<SyncService>()
+                                        .pushCustomer(updated));
                                   }
 
                                   if (ctx.mounted) {
@@ -2885,6 +2899,7 @@ class CustomerDetailPage extends StatelessWidget {
                                     final updated = existingModel.copyWith(
                                       balance: newBalance,
                                       pendingSync: true,
+                                      updatedAt: DateTime.now(),
                                     );
                                     await HiveDatabase.customerBox
                                         .put(customer.id, updated);

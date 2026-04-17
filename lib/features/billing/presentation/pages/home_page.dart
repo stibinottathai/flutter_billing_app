@@ -340,7 +340,7 @@ class _HomePageState extends State<HomePage>
       unit == QuantityUnit.liter ||
       unit == QuantityUnit.pieceWithKg;
 
-    bool _isPieceWithKg(QuantityUnit unit) => unit == QuantityUnit.pieceWithKg;
+  bool _isPieceWithKg(QuantityUnit unit) => unit == QuantityUnit.pieceWithKg;
 
   double _stepForUnit(QuantityUnit unit) => 1.0;
 
@@ -640,46 +640,83 @@ class _HomePageState extends State<HomePage>
             return const SizedBox.shrink();
           }
 
-          return Container(
-            padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 14.h),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 20.r,
-                  offset: Offset(0, -5.h),
-                )
-              ],
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              16.w,
+              0,
+              16.w,
+              MediaQuery.of(context).padding.bottom + 14.h,
             ),
-            child: SizedBox(
-              height: 46.h,
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  await _pauseScanner();
-                  await context.push('/checkout');
-                  if (_isCameraOn && mounted) await _resumeScanner();
-                },
-                icon: Icon(Icons.payments_rounded, size: 18.r),
-                label: Text(
-                  'Review Order   •   ₹${state.totalAmount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14.sp,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor,
+                borderRadius: BorderRadius.circular(24.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                    blurRadius: 20.r,
+                    offset: Offset(0, 10.h),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  elevation: 6,
-                  shadowColor: AppTheme.primaryColor.withValues(alpha: 0.35),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+                ],
+              ),
+              padding: EdgeInsets.fromLTRB(20.w, 14.h, 14.w, 14.h),
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        '₹${state.totalAmount.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _pauseScanner();
+                      await context.push('/checkout');
+                      if (_isCameraOn && mounted) await _resumeScanner();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.primaryColor,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.w, vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Checkout',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Icon(Icons.arrow_forward_rounded, size: 14.sp),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -1028,7 +1065,10 @@ class _HomePageState extends State<HomePage>
                     children: [
                       Icon(Icons.shopping_cart_rounded, size: 18.r),
                       SizedBox(width: 8.w),
-                       Text('Current Order',style: TextStyle(fontSize: 12.sp),),
+                      Text(
+                        'Current Order',
+                        style: TextStyle(fontSize: 12.sp),
+                      ),
                     ],
                   ),
                 ),
@@ -1038,7 +1078,7 @@ class _HomePageState extends State<HomePage>
                     children: [
                       Icon(Icons.inventory_2_rounded, size: 18.r),
                       SizedBox(width: 8.w),
-                       Text('Add Items', style: TextStyle(fontSize: 12.sp)),
+                      Text('Add Items', style: TextStyle(fontSize: 12.sp)),
                     ],
                   ),
                 ),
@@ -1092,254 +1132,234 @@ class _HomePageState extends State<HomePage>
           ),
           child: _buildSaleEntryStyleSection(
             child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 10.h),
+                  child: Row(
                     children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 10.h),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Current Order',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16.sp,
-                                color: const Color(0xFF1E293B),
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              '${state.cartItems.length} item(s)',
-                              style: TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(width: 10.w),
-                            GestureDetector(
-                              onTap: _clearAllGuestCart,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 10.w, vertical: 4.h),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF2F2),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Text(
-                                  'Clear',
-                                  style: TextStyle(
-                                    color: const Color(0xFFEF4444),
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      Text(
+                        'Current Order',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.sp,
+                          color: const Color(0xFF1E293B),
                         ),
                       ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: state.cartItems.length,
-                        itemBuilder: (context, index) {
-                          final item = state.cartItems[index];
-                          return Container(
-                            margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
-                            padding: EdgeInsets.all(16.r),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20.r),
-                              border: Border.all(
-                                  color: Colors.grey.shade100, width: 1.5.w),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
-                                  blurRadius: 10.r,
-                                  offset: Offset(0, 4.h),
-                                ),
-                              ],
+                      const Spacer(),
+                      Text(
+                        '${state.cartItems.length} item(s)',
+                        style: TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      GestureDetector(
+                        onTap: _clearAllGuestCart,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Text(
+                            'Clear',
+                            style: TextStyle(
+                              color: const Color(0xFFEF4444),
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.product.name,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14.sp,
-                                          color: Color(0xFF1E293B),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(height: 4.h),
-                                      Text(
-                                        'Rs ${item.product.price.toStringAsFixed(0)} x ${_formatSaleQty(item)}  =  Rs ${item.total.toStringAsFixed(0)}',
-                                        style: TextStyle(
-                                          fontSize: 10.sp,
-                                          color: Color(0xFF10B981),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      height: 36.h,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF8FAFC),
-                                        borderRadius:
-                                            BorderRadius.circular(12.r),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _circularIconButton(
-                                            icon: Icons.remove_rounded,
-                                            color: const Color(0xFF64748B),
-                                            onPressed: () =>
-                                                _decrementCartItem(item),
-                                          ),
-                                          SizedBox(
-                                            width: 56.w,
-                                            child: _isWeightedUnit(
-                                                    item.product.unit)
-                                                ? TextFormField(
-                                                    key: ValueKey(
-                                                      'order-kg-${item.product.id}-v$_qtyFieldVersion'),
-                                                    initialValue: _formatQty(
-                                                        item.quantity),
-                                                    keyboardType:
-                                                        const TextInputType
-                                                            .numberWithOptions(
-                                                            decimal: true),
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      fontSize: 12.sp,
-                                                      color: Color(0xFF0F172A),
-                                                    ),
-                                                    decoration:
-                                                        const InputDecoration(
-                                                      isDense: true,
-                                                      border: InputBorder.none,
-                                                      contentPadding:
-                                                          EdgeInsets.zero,
-                                                    ),
-                                                    onFieldSubmitted: (value) {
-                                                      _applyInlineQuantityForCartItem(
-                                                          item, value);
-                                                    },
-                                                    onChanged: (value) {
-                                                      _applyInlineQuantityForCartItem(
-                                                          item, value);
-                                                    },
-                                                  )
-                                                : Text(
-                                                    _formatQty(item.quantity),
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      fontSize: 13.sp,
-                                                      color: Color(0xFF0F172A),
-                                                    ),
-                                                  ),
-                                          ),
-                                          _circularIconButton(
-                                            icon: Icons.add_rounded,
-                                            color: AppTheme.primaryColor,
-                                            onPressed: () =>
-                                                _incrementCartItem(item),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (_isPieceWithKg(item.product.unit))
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 8.h),
-                                        child: Container(
-                                          height: 36.h,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF8FAFC),
-                                            borderRadius:
-                                                BorderRadius.circular(12.r),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              _circularIconButton(
-                                                icon: Icons.remove_rounded,
-                                                color:
-                                                    const Color(0xFF64748B),
-                                                onPressed: () =>
-                                                    _decrementSecondaryCount(
-                                                        item),
-                                              ),
-                                              SizedBox(
-                                                width: 56.w,
-                                                child: TextFormField(
-                                                  key: ValueKey(
-                                                    'order-sec-${item.product.id}-v$_qtyFieldVersion'),
-                                                  initialValue: item
-                                                      .secondaryQuantity
-                                                      .toStringAsFixed(0),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w800,
-                                                    fontSize: 12.sp,
-                                                    color:
-                                                        const Color(0xFF0F172A),
-                                                  ),
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    isDense: true,
-                                                    border: InputBorder.none,
-                                                    contentPadding:
-                                                        EdgeInsets.zero,
-                                                  ),
-                                                  onFieldSubmitted: (value) {
-                                                    _applySecondaryCountForCartItem(
-                                                        item, value);
-                                                  },
-                                                  onChanged: (value) {
-                                                    _applySecondaryCountForCartItem(
-                                                        item, value);
-                                                  },
-                                                ),
-                                              ),
-                                              _circularIconButton(
-                                                icon: Icons.add_rounded,
-                                                color: AppTheme.primaryColor,
-                                                onPressed: () =>
-                                                    _incrementSecondaryCount(
-                                                        item),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
                     ],
                   ),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: state.cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = state.cartItems[index];
+                    return Container(
+                      margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
+                      padding: EdgeInsets.all(16.r),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(
+                            color: Colors.grey.shade100, width: 1.5.w),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10.r,
+                            offset: Offset(0, 4.h),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.product.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14.sp,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  'Rs ${item.product.price.toStringAsFixed(0)} x ${_formatSaleQty(item)}  =  Rs ${item.total.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontSize: 10.sp,
+                                    color: Color(0xFF10B981),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                height: 36.h,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _circularIconButton(
+                                      icon: Icons.remove_rounded,
+                                      color: const Color(0xFF64748B),
+                                      onPressed: () => _decrementCartItem(item),
+                                    ),
+                                    SizedBox(
+                                      width: 56.w,
+                                      child: _isWeightedUnit(item.product.unit)
+                                          ? TextFormField(
+                                              key: ValueKey(
+                                                  'order-kg-${item.product.id}-v$_qtyFieldVersion'),
+                                              initialValue:
+                                                  _formatQty(item.quantity),
+                                              keyboardType: const TextInputType
+                                                  .numberWithOptions(
+                                                  decimal: true),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 12.sp,
+                                                color: Color(0xFF0F172A),
+                                              ),
+                                              decoration: const InputDecoration(
+                                                isDense: true,
+                                                border: InputBorder.none,
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              onFieldSubmitted: (value) {
+                                                _applyInlineQuantityForCartItem(
+                                                    item, value);
+                                              },
+                                              onChanged: (value) {
+                                                _applyInlineQuantityForCartItem(
+                                                    item, value);
+                                              },
+                                            )
+                                          : Text(
+                                              _formatQty(item.quantity),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 13.sp,
+                                                color: Color(0xFF0F172A),
+                                              ),
+                                            ),
+                                    ),
+                                    _circularIconButton(
+                                      icon: Icons.add_rounded,
+                                      color: AppTheme.primaryColor,
+                                      onPressed: () => _incrementCartItem(item),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (_isPieceWithKg(item.product.unit))
+                                Padding(
+                                  padding: EdgeInsets.only(top: 8.h),
+                                  child: Container(
+                                    height: 36.h,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _circularIconButton(
+                                          icon: Icons.remove_rounded,
+                                          color: const Color(0xFF64748B),
+                                          onPressed: () =>
+                                              _decrementSecondaryCount(item),
+                                        ),
+                                        SizedBox(
+                                          width: 56.w,
+                                          child: TextFormField(
+                                            key: ValueKey(
+                                                'order-sec-${item.product.id}-v$_qtyFieldVersion'),
+                                            initialValue: item.secondaryQuantity
+                                                .toStringAsFixed(0),
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 12.sp,
+                                              color: const Color(0xFF0F172A),
+                                            ),
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              border: InputBorder.none,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                            onFieldSubmitted: (value) {
+                                              _applySecondaryCountForCartItem(
+                                                  item, value);
+                                            },
+                                            onChanged: (value) {
+                                              _applySecondaryCountForCartItem(
+                                                  item, value);
+                                            },
+                                          ),
+                                        ),
+                                        _circularIconButton(
+                                          icon: Icons.add_rounded,
+                                          color: AppTheme.primaryColor,
+                                          onPressed: () =>
+                                              _incrementSecondaryCount(item),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -1517,8 +1537,7 @@ class _HomePageState extends State<HomePage>
                                     height: 38.h,
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.circular(12.r),
+                                      borderRadius: BorderRadius.circular(12.r),
                                       border: Border.all(
                                           color: const Color(0xFFE2E8F0)),
                                       boxShadow: [
@@ -1545,8 +1564,8 @@ class _HomePageState extends State<HomePage>
                                               : 40.w,
                                           child: _isWeightedUnit(product.unit)
                                               ? TextFormField(
-                                                      key: ValueKey(
-                                                        'inventory-kg-${cartItem.product.id}-v$_qtyFieldVersion'),
+                                                  key: ValueKey(
+                                                      'inventory-kg-${cartItem.product.id}-v$_qtyFieldVersion'),
                                                   initialValue: _formatQty(
                                                       cartItem.quantity),
                                                   keyboardType:
@@ -1555,17 +1574,14 @@ class _HomePageState extends State<HomePage>
                                                           decimal: true),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w800,
+                                                    fontWeight: FontWeight.w800,
                                                     fontSize: 13.sp,
-                                                    color:
-                                                        Color(0xFF0F172A),
+                                                    color: Color(0xFF0F172A),
                                                   ),
                                                   decoration:
                                                       const InputDecoration(
                                                     isDense: true,
-                                                    border:
-                                                        InputBorder.none,
+                                                    border: InputBorder.none,
                                                     contentPadding:
                                                         EdgeInsets.zero,
                                                   ),
@@ -1615,8 +1631,7 @@ class _HomePageState extends State<HomePage>
                                               style: TextStyle(
                                                 fontSize: 10.sp,
                                                 fontWeight: FontWeight.w700,
-                                                color:
-                                                    const Color(0xFF64748B),
+                                                color: const Color(0xFF64748B),
                                               ),
                                             ),
                                           ),
@@ -1632,8 +1647,8 @@ class _HomePageState extends State<HomePage>
                                               children: [
                                                 _circularIconButton(
                                                   icon: Icons.remove_rounded,
-                                                  color: const Color(
-                                                      0xFF64748B),
+                                                  color:
+                                                      const Color(0xFF64748B),
                                                   onPressed: () =>
                                                       _decrementSecondaryCount(
                                                           cartItem),
@@ -1642,14 +1657,13 @@ class _HomePageState extends State<HomePage>
                                                   width: 56.w,
                                                   child: TextFormField(
                                                     key: ValueKey(
-                                                      'inventory-sec-${cartItem.product.id}-v$_qtyFieldVersion'),
+                                                        'inventory-sec-${cartItem.product.id}-v$_qtyFieldVersion'),
                                                     initialValue: cartItem
                                                         .secondaryQuantity
                                                         .toStringAsFixed(0),
                                                     keyboardType:
                                                         TextInputType.number,
-                                                    textAlign:
-                                                        TextAlign.center,
+                                                    textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
@@ -1660,13 +1674,11 @@ class _HomePageState extends State<HomePage>
                                                     decoration:
                                                         const InputDecoration(
                                                       isDense: true,
-                                                      border:
-                                                          InputBorder.none,
+                                                      border: InputBorder.none,
                                                       contentPadding:
                                                           EdgeInsets.zero,
                                                     ),
-                                                    onFieldSubmitted:
-                                                        (value) {
+                                                    onFieldSubmitted: (value) {
                                                       _applySecondaryCountForCartItem(
                                                           cartItem, value);
                                                     },
@@ -1678,8 +1690,7 @@ class _HomePageState extends State<HomePage>
                                                 ),
                                                 _circularIconButton(
                                                   icon: Icons.add_rounded,
-                                                  color:
-                                                      AppTheme.primaryColor,
+                                                  color: AppTheme.primaryColor,
                                                   onPressed: () =>
                                                       _incrementSecondaryCount(
                                                           cartItem),

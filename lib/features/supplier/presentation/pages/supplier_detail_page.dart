@@ -1181,6 +1181,7 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
     final updatedSupplier = supplierModel.copyWith(
       balance: balance < 0 ? 0.0 : balance,
       pendingSync: true,
+      updatedAt: DateTime.now(),
     );
 
     await HiveDatabase.supplierBox.put(supplierId, updatedSupplier);
@@ -1470,6 +1471,7 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
                                   final updated = _supplier.copyWith(
                                     name: nameCtrl.text.trim(),
                                     phone: phoneCtrl.text.trim(),
+                                    updatedAt: DateTime.now(),
                                   );
 
                                   try {

@@ -38,6 +38,7 @@ class SupplierPurchaseRepositoryImpl implements SupplierPurchaseRepository {
       final updatedSupplier = supplierModel.copyWith(
         balance: supplierModel.balance + due,
         pendingSync: !_syncService.isOnline,
+        updatedAt: DateTime.now(),
       );
       await HiveDatabase.supplierBox.put(updatedSupplier.id, updatedSupplier);
       if (_syncService.isOnline) {

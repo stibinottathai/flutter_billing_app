@@ -19,7 +19,8 @@ class SupplierRepositoryImpl implements SupplierRepository {
     return HiveDatabase.supplierBox.values
         .where((s) => s.userId == userId)
         .map((s) => s.toEntity())
-        .toList();
+        .toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 
   @override
@@ -37,7 +38,8 @@ class SupplierRepositoryImpl implements SupplierRepository {
       (s) => s.userId == userId && s.phone == supplier.phone,
     );
     if (existingWithSamePhone) {
-      throw Exception('A supplier with phone number ${supplier.phone} already exists.');
+      throw Exception(
+          'A supplier with phone number ${supplier.phone} already exists.');
     }
 
     final model = SupplierModel(
@@ -46,6 +48,7 @@ class SupplierRepositoryImpl implements SupplierRepository {
       phone: supplier.phone,
       userId: userId,
       balance: supplier.balance,
+      updatedAt: DateTime.now(),
       pendingSync: !_syncService.isOnline,
     );
     await HiveDatabase.supplierBox.put(model.id, model);
@@ -65,6 +68,7 @@ class SupplierRepositoryImpl implements SupplierRepository {
       phone: supplier.phone,
       userId: userId,
       balance: supplier.balance,
+      updatedAt: DateTime.now(),
       pendingSync: !_syncService.isOnline,
     );
     await HiveDatabase.supplierBox.put(model.id, model);

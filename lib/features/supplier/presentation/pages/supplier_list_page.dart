@@ -47,8 +47,7 @@ class _SupplierListViewState extends State<_SupplierListView> {
   void initState() {
     super.initState();
     // Reload suppliers whenever a sync cycle completes (e.g. after login pull).
-    _syncSubscription =
-        di.sl<SyncService>().onSyncComplete.stream.listen((_) {
+    _syncSubscription = di.sl<SyncService>().onSyncComplete.stream.listen((_) {
       if (mounted) {
         context.read<SupplierBloc>().add(const LoadSuppliersEvent());
       }
@@ -65,7 +64,7 @@ class _SupplierListViewState extends State<_SupplierListView> {
   List<SupplierEntity> _applyFilters(List<SupplierEntity> suppliers) {
     final query = _searchController.text.trim().toLowerCase();
 
-    return suppliers.where((supplier) {
+    final filtered = suppliers.where((supplier) {
       final matchesQuery = query.isEmpty ||
           supplier.name.toLowerCase().contains(query) ||
           supplier.phone.toLowerCase().contains(query);
@@ -78,6 +77,9 @@ class _SupplierListViewState extends State<_SupplierListView> {
 
       return matchesQuery && matchesStatus;
     }).toList();
+
+    filtered.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return filtered;
   }
 
   @override
@@ -91,7 +93,7 @@ class _SupplierListViewState extends State<_SupplierListView> {
         elevation: 0,
         titleSpacing: 4,
         leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
-        title:  Text(
+        title: Text(
           'Suppliers',
           style: TextStyle(
             fontWeight: FontWeight.w800,
@@ -107,10 +109,13 @@ class _SupplierListViewState extends State<_SupplierListView> {
             context.read<SupplierBloc>().add(const LoadSuppliersEvent());
           }
         },
-        icon:  Icon(Icons.person_add_alt_1_rounded,size: 20.h,),
-        label:  Text(
+        icon: Icon(
+          Icons.person_add_alt_1_rounded,
+          size: 20.h,
+        ),
+        label: Text(
           'Add Supplier',
-          style: TextStyle(fontWeight: FontWeight.w700,fontSize: 12.sp),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.sp),
         ),
         backgroundColor: _primary,
         foregroundColor: Colors.white,
@@ -141,8 +146,7 @@ class _SupplierListViewState extends State<_SupplierListView> {
                       height: 36,
                       child: CircularProgressIndicator(
                         strokeWidth: 3.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(_primary),
+                        valueColor: AlwaysStoppedAnimation<Color>(_primary),
                       ),
                     ),
                   ),
@@ -313,8 +317,7 @@ class _SummaryCard extends StatelessWidget {
             ),
             child: Text(
               '$dueCount with pending due',
-              
-              style:  TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w700,
@@ -374,7 +377,7 @@ class _SupplierCard extends StatelessWidget {
                     supplier.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:  TextStyle(
+                    style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF0F172A),
@@ -383,7 +386,7 @@ class _SupplierCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     supplier.phone.isEmpty ? 'Phone not added' : supplier.phone,
-                    style:  TextStyle(
+                    style: TextStyle(
                       fontSize: 12.sp,
                       color: const Color(0xFF64748B),
                       fontWeight: FontWeight.w500,

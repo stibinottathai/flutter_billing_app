@@ -23,13 +23,16 @@ class SupplierModelAdapter extends TypeAdapter<SupplierModel> {
       userId: fields[3] as String,
       pendingSync: fields[4] as bool,
       balance: fields[5] == null ? 0.0 : fields[5] as double,
+      updatedAt: fields[6] == null
+          ? DateTime.fromMillisecondsSinceEpoch(0)
+          : fields[6] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, SupplierModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +44,9 @@ class SupplierModelAdapter extends TypeAdapter<SupplierModel> {
       ..writeByte(4)
       ..write(obj.pendingSync)
       ..writeByte(5)
-      ..write(obj.balance);
+        ..write(obj.balance)
+        ..writeByte(6)
+        ..write(obj.updatedAt);
   }
 
   @override

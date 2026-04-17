@@ -4,14 +4,16 @@ class SupplierEntity {
   final String phone;
   final double balance; // Amount we owe this supplier (positive = we owe them)
   final bool pendingSync;
+  final DateTime updatedAt;
 
-  const SupplierEntity({
+  SupplierEntity({
     required this.id,
     required this.name,
     required this.phone,
     this.balance = 0.0,
     this.pendingSync = false,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 
   SupplierEntity copyWith({
     String? id,
@@ -19,6 +21,7 @@ class SupplierEntity {
     String? phone,
     double? balance,
     bool? pendingSync,
+    DateTime? updatedAt,
   }) {
     return SupplierEntity(
       id: id ?? this.id,
@@ -26,6 +29,7 @@ class SupplierEntity {
       phone: phone ?? this.phone,
       balance: balance ?? this.balance,
       pendingSync: pendingSync ?? this.pendingSync,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

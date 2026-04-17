@@ -657,7 +657,7 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 12.sp,
-                                        color: Color(0xFF1E293B),
+                                        color: const Color(0xFF1E293B),
                                       ),
                                     ),
                                     const SizedBox(height: 3),

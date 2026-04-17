@@ -31,6 +31,15 @@ class _CustomerListPageState extends State<CustomerListPage> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CustomerBloc>().add(LoadCustomersEvent());
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();

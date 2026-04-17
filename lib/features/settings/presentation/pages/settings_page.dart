@@ -28,6 +28,15 @@ class _SettingsPageState extends State<SettingsPage> {
   String _appVersionLabel = 'App Version';
   bool _isManualSyncing = false;
   static const String _scannerVisibilityKeyPrefix = 'scanner_visible';
+  static const String _avatarColorKeyPrefix = 'avatar_color';
+  static const List<Color> _avatarColorChoices = [
+    Color(0xFF1D4ED8),
+    Color(0xFF2563EB),
+    Color(0xFF10B981),
+    Color(0xFFF59E0B),
+    Color(0xFFEF4444),
+    Color(0xFF8B5CF6),
+  ];
 
   static const String _fallbackBuildName =
       String.fromEnvironment('FLUTTER_BUILD_NAME');
@@ -235,6 +244,16 @@ class _SettingsPageState extends State<SettingsPage> {
     return '${_scannerVisibilityKeyPrefix}_$userId';
   }
 
+  String _avatarColorKey(String userId) {
+    return '${_avatarColorKeyPrefix}_$userId';
+  }
+
+  Color _shiftLightness(Color color, double delta) {
+    final hsl = HSLColor.fromColor(color);
+    final adjusted = (hsl.lightness + delta).clamp(0.0, 1.0).toDouble();
+    return hsl.withLightness(adjusted).toColor();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isCompact = MediaQuery.sizeOf(context).width < 380;
@@ -242,7 +261,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title:  Text('Options',
+        title:  Text('Settings',
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 20.sp,
@@ -502,20 +521,37 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildProfileSection({required bool isCompact}) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final userEmail = currentUser?.email;
+    final userPhotoUrl = currentUser?.photoURL;
+    final settingsBox = HiveDatabase.settingsBox;
+    final userId = _activeUserId();
+    final avatarColorKey =
+        userId == null ? _avatarColorKeyPrefix : _avatarColorKey(userId);
+    final savedColorValue =
+        settingsBox.get(avatarColorKey, defaultValue: _avatarColorChoices.first.value)
+            as int;
+    final selectedAvatarColor = _avatarColorChoices.firstWhere(
+      (color) => color.value == savedColorValue,
+      orElse: () => _avatarColorChoices.first,
+    );
+    final headerGradientStart = _shiftLightness(selectedAvatarColor, -0.12);
+    final headerGradientEnd = _shiftLightness(selectedAvatarColor, 0.03);
+
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: isCompact ? 16 : 20),
       padding: EdgeInsets.all(isCompact ? 20 : 24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1D4ED8), AppTheme.primaryColor],
+        gradient: LinearGradient(
+          colors: [headerGradientStart, headerGradientEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-              color: AppTheme.primaryColor.withValues(alpha: 0.25),
+              color: selectedAvatarColor.withValues(alpha: 0.25),
               blurRadius: 20,
               offset: const Offset(0, 8))
         ],
@@ -524,6 +560,7 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (context, state) {
           String shopName = 'Your Shop';
           String initials = 'YS';
+          String cityName = '';
           if (state is ShopLoaded && state.shop.name.isNotEmpty) {
             shopName = state.shop.name;
             final parts = shopName.split(' ');
@@ -533,6 +570,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 .join('');
             if (initials.isEmpty) initials = 'S';
           }
+          if (state is ShopLoaded) {
+            cityName = state.shop.addressLine1.trim();
+          }
+
+            final generatedAvatarUrl = (userEmail != null && userEmail.isNotEmpty)
+              ? 'https://api.dicebear.com/9.x/adventurer/png?seed=${Uri.encodeComponent(userEmail)}'
+              : null;
+            final displayAvatarUrl =
+              (userPhotoUrl != null && userPhotoUrl.isNotEmpty)
+              ? userPhotoUrl
+              : generatedAvatarUrl;
 
           return Row(
             children: [
@@ -542,6 +590,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    width: 2,
+                  ),
                   boxShadow: [
                     BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
@@ -550,12 +602,27 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Text(initials,
+                child: (displayAvatarUrl != null && displayAvatarUrl.isNotEmpty)
+                  ? ClipOval(
+                    child: Image.network(
+                      displayAvatarUrl,
+                      width: isCompact ? 54 : 60,
+                      height: isCompact ? 54 : 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Text(initials,
+                        style: TextStyle(
+                          color: selectedAvatarColor,
+                          fontSize: isCompact ? 22 : 24,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1)),
+                    ),
+                    )
+                  : Text(initials,
                     style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: isCompact ? 22 : 24,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1)),
+                      color: selectedAvatarColor,
+                      fontSize: isCompact ? 22 : 24,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1)),
               ),
               SizedBox(width: isCompact ? 14 : 20),
               Expanded(
@@ -596,20 +663,66 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: const Text('Admin Panel',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.bold)),
-                    )
+                    if (cityName.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        cityName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          fontSize: isCompact ? 12 : 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                    if (userEmail != null && userEmail.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        userEmail,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          fontSize: isCompact ? 12 : 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: _avatarColorChoices.map((color) {
+                          final isSelected = color.value == selectedAvatarColor.value;
+                          return GestureDetector(
+                            onTap: () {
+                              settingsBox.put(avatarColorKey, color.value);
+                              setState(() {});
+                            },
+                            child: Container(
+                              width: isCompact ? 14 : 16,
+                              height: isCompact ? 14 : 16,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white.withValues(alpha: 0.45),
+                                  width: isSelected ? 2.4 : 1.2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ],
                 ),
               ),

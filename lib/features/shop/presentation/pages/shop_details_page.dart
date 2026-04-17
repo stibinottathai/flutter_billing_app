@@ -283,11 +283,11 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
                       const SizedBox(height: 16),
 
                       _buildTextField(
-                        label: 'Address Line 1',
+                        label: 'City',
                         controller: _address1Controller,
                         hint: 'e.g. 123 Main Street',
                         icon: Icons.location_on_rounded,
-                        maxLength: 30,
+                        maxLength: 20,
                         validator: AppValidators.required(
                             'Address Line 1 is required'),
                       ),
@@ -421,10 +421,10 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
           maxLength: maxLength,
           textCapitalization: TextCapitalization.words,
           validator: validator,
-          style: const TextStyle(
+          style:  TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 15,
-            color: Color(0xFF0F172A),
+            fontSize: 12.sp,
+            color: const Color(0xFF0F172A),
           ),
           decoration: InputDecoration(
             counterText: '',

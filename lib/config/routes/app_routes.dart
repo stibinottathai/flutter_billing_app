@@ -5,6 +5,7 @@ import '../../features/product/presentation/pages/product_list_page.dart';
 import '../../features/product/presentation/pages/add_product_page.dart';
 import '../../features/product/presentation/pages/edit_product_page.dart';
 import '../../features/product/presentation/pages/manage_categories_page.dart';
+import '../../features/product/presentation/pages/product_analysis_page.dart';
 import '../../features/shop/presentation/pages/shop_details_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/billing/presentation/pages/scanner_page.dart';
@@ -149,6 +150,10 @@ final router = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/product-analysis',
+      builder: (context, state) => const ProductAnalysisPage(),
     ),
     GoRoute(
       path: '/categories',

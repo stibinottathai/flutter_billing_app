@@ -301,6 +301,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   _buildListItem(
+                    icon: Icons.insights_rounded,
+                    iconColor: const Color(0xFF0284C7),
+                    title: 'Product Analysis',
+                    subtitle: 'Top-selling, low-selling and trends',
+                    onTap: () => context.push('/product-analysis'),
+                    isCompact: isCompact,
+                  ),
+                  _buildDivider(),
+                  _buildListItem(
                     icon: Icons.storefront_rounded,
                     iconColor: const Color(0xFFF59E0B),
                     title: 'Shop Details',

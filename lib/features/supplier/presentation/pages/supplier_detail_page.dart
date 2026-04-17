@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,10 +8,12 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:billing_app/core/widgets/app_back_button.dart';
 import '../../../../core/data/hive_database.dart';
+import '../../../../core/services/sync_service.dart';
 import '../../domain/entities/supplier_entity.dart';
 import '../../domain/entities/supplier_purchase_entity.dart';
 import '../../domain/usecases/supplier_usecases.dart';
 import '../../domain/usecases/supplier_purchase_usecases.dart';
+import '../../data/models/supplier_purchase_model.dart';
 import '../bloc/supplier_purchase_bloc.dart';
 import '../bloc/supplier_purchase_event.dart';
 import '../bloc/supplier_purchase_state.dart';
@@ -735,6 +739,73 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Future.microtask(() {
+                              _showEditPurchaseSheet(context, p);
+                            });
+                          },
+                          icon: const Icon(Icons.edit_rounded, size: 18),
+                          label: const Text('Edit'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _primary,
+                            side: BorderSide(
+                                color: _primary.withValues(alpha: 0.25)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Future.microtask(() {
+                              _confirmDeletePurchase(context, p);
+                            });
+                          },
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              size: 18),
+                          label: const Text('Delete'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFDC2626),
+                            side: const BorderSide(color: Color(0xFFFECACA)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        height: 46,
+                        width: 46,
+                        child: OutlinedButton(
+                          onPressed: () =>
+                              _printSupplierTransaction(context, p),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _primary,
+                            side: BorderSide(
+                                color: _primary.withValues(alpha: 0.25)),
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Icon(Icons.print_rounded, size: 19),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -768,6 +839,367 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
         ),
       ],
     );
+  }
+
+  Future<void> _showEditPurchaseSheet(
+    BuildContext context,
+    SupplierPurchaseEntity purchase,
+  ) async {
+    final isPayment = purchase.isPaymentTransaction;
+    final amountController = TextEditingController(
+      text: purchase.amountPaid.toStringAsFixed(2),
+    );
+    final formKey = GlobalKey<FormState>();
+    bool isSaving = false;
+
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
+            ),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 42,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Edit Purchase',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18.sp,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: formKey,
+                        child: TextFormField(
+                          controller: amountController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          decoration: InputDecoration(
+                            labelText:
+                                isPayment ? 'Payment Amount' : 'Amount Paid',
+                            prefixText: 'Rs ',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          validator: (v) {
+                            final value = double.tryParse((v ?? '').trim());
+                            if (value == null || value <= 0) {
+                              return 'Enter a valid amount';
+                            }
+                            if (!isPayment && value > purchase.totalAmount) {
+                              return 'Amount paid cannot exceed purchase total';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              style: OutlinedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text('Cancel'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: isSaving
+                                  ? null
+                                  : () async {
+                                      if (!formKey.currentState!.validate()) {
+                                        return;
+                                      }
+                                      setState(() => isSaving = true);
+
+                                      final model = HiveDatabase
+                                          .supplierPurchaseBox
+                                          .get(purchase.id);
+                                      if (model == null) {
+                                        if (ctx.mounted) {
+                                          Navigator.pop(ctx, false);
+                                        }
+                                        return;
+                                      }
+
+                                      final enteredPaid = double.parse(
+                                          amountController.text.trim());
+                                      final updated = model.copyWith(
+                                        amountPaid: isPayment
+                                            ? enteredPaid
+                                            : enteredPaid
+                                                .clamp(0.0, model.totalAmount)
+                                                .toDouble(),
+                                        pendingSync: true,
+                                      );
+
+                                      await HiveDatabase.supplierPurchaseBox
+                                          .put(updated.id, updated);
+                                      unawaited(di
+                                          .sl<SyncService>()
+                                          .pushSupplierPurchase(updated));
+
+                                      await _recalculateAndPersistSupplierBalance(
+                                        purchase.supplierId,
+                                      );
+
+                                      if (ctx.mounted) {
+                                        Navigator.pop(ctx, true);
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _primary,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: isSaving
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Save'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (result == true && context.mounted) {
+      await _reloadSupplierAndPurchases();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Purchase updated')),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDeletePurchase(
+    BuildContext context,
+    SupplierPurchaseEntity purchase,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 22),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.16),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.delete_forever_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'Delete Purchase?',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This action cannot be undone. The purchase entry will be removed permanently.',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  height: 1.35,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF475569),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC2626),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    await HiveDatabase.supplierPurchaseBox.delete(purchase.id);
+    unawaited(di.sl<SyncService>().deleteSupplierPurchase(purchase.id));
+    await _recalculateAndPersistSupplierBalance(purchase.supplierId);
+    await _reloadSupplierAndPurchases();
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Purchase deleted')),
+      );
+    }
+  }
+
+  Future<void> _recalculateAndPersistSupplierBalance(String supplierId) async {
+    final supplierModel = HiveDatabase.supplierBox.get(supplierId);
+    if (supplierModel == null) {
+      return;
+    }
+
+    final purchases = HiveDatabase.supplierPurchaseBox.values
+        .where((p) => p.supplierId == supplierId)
+        .toList()
+      ..sort((a, b) {
+        final byDate = a.date.compareTo(b.date);
+        if (byDate != 0) return byDate;
+        return a.id.compareTo(b.id);
+      });
+
+    var balance = 0.0;
+    for (final purchase in purchases) {
+      balance += (purchase.totalAmount - purchase.amountPaid);
+    }
+
+    final updatedSupplier = supplierModel.copyWith(
+      balance: balance < 0 ? 0.0 : balance,
+      pendingSync: true,
+    );
+
+    await HiveDatabase.supplierBox.put(supplierId, updatedSupplier);
+    unawaited(di.sl<SyncService>().pushSupplier(updatedSupplier));
+  }
+
+  Future<void> _reloadSupplierAndPurchases() async {
+    if (!mounted) {
+      return;
+    }
+
+    context.read<SupplierPurchaseBloc>().add(LoadSupplierPurchasesEvent(
+          _supplier.id,
+        ));
+
+    final refreshed = await di.sl<GetSupplierByIdUseCase>()(_supplier.id);
+    if (refreshed != null && mounted) {
+      setState(() => _supplier = refreshed);
+    }
   }
 
   Future<void> _showEditSupplierSheet() async {
@@ -1227,8 +1659,7 @@ class _SupplierDetailViewState extends State<_SupplierDetailView> {
     SupplierPurchaseEntity selected,
     List<SupplierPurchaseEntity> all,
   ) {
-    final asc = [...all]
-      ..sort((a, b) {
+    final asc = [...all]..sort((a, b) {
         final byDate = a.date.compareTo(b.date);
         if (byDate != 0) return byDate;
         return a.id.compareTo(b.id);

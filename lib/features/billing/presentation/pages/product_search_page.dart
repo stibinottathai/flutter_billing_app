@@ -7,6 +7,7 @@ import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 import 'package:billing_app/core/theme/app_theme.dart';
 import 'package:billing_app/core/data/hive_database.dart';
+import 'package:billing_app/core/widgets/app_back_button.dart';
 import 'package:billing_app/features/product/domain/entities/product.dart';
 import 'package:billing_app/features/billing/presentation/bloc/billing_bloc.dart';
 import 'package:billing_app/features/billing/domain/entities/cart_item.dart';
@@ -172,7 +173,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        leading: AppBackButton(onPressed: () => context.pop(), leftPadding: 16),
         title:  Text(
           'Search Products',
           style: TextStyle(

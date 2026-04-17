@@ -52,7 +52,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         leading: context.canPop()
-            ? AppBackButton(onPressed: () => context.pop())
+            ? AppBackButton(onPressed: () => context.pop(), leftPadding: 16)
             : null,
         titleSpacing: 6,
         title: Text(

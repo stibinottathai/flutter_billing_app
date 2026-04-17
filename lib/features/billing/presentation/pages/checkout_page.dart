@@ -1055,121 +1055,141 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: _isFinishing
-                    ? null
-                    : () {
-                    final paid = billingState.customerId.isNotEmpty
-                      ? _validatedCustomerAmountToPay(grandTotal)
-                      : billingState.totalAmount;
-                    if (paid == null) return;
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: (_isFinishing || _isPrinting || billingState.isPrinting)
+                        ? null
+                        : () {
+                            final paid = billingState.customerId.isNotEmpty
+                                ? _validatedCustomerAmountToPay(grandTotal)
+                                : billingState.totalAmount;
+                            if (paid == null) return;
 
-                        setState(() => _isFinishing = true);
-                        context.read<BillingBloc>().add(
-                              FinishTransactionEvent(
-                                  amountPaid: paid,
-                                  paymentMethod: _paymentMethod),
-                            );
-                      },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side:
-                      const BorderSide(color: AppTheme.primaryColor, width: 2),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  backgroundColor:
-                      AppTheme.primaryColor.withValues(alpha: 0.05),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                     Text(
-                      'Finish without Receipt',
-                      style: TextStyle(
+                            setState(() => _isFinishing = true);
+                            context.read<BillingBloc>().add(
+                                  FinishTransactionEvent(
+                                    amountPaid: paid,
+                                    paymentMethod: _paymentMethod,
+                                  ),
+                                );
+                          },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(
                         color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15.sp ,
+                        width: 2,
                       ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor:
+                          AppTheme.primaryColor.withValues(alpha: 0.05),
                     ),
-                    if (_isFinishing) ...[
-                      const SizedBox(width: 12),
-                      const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          color: AppTheme.primaryColor,
-                          strokeWidth: 2.5,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: (_isPrinting || billingState.isPrinting)
-                    ? null
-                    : () {
-                        if (shop != null) {
-                      final paid = billingState.customerId.isNotEmpty
-                        ? _validatedCustomerAmountToPay(grandTotal)
-                        : billingState.totalAmount;
-                      if (paid == null) return;
-
-                          setState(() => _isPrinting = true);
-                          context.read<BillingBloc>().add(PrintReceiptEvent(
-                                shopName: shop.name,
-                                address1: shop.addressLine1,
-                                address2: shop.addressLine2,
-                                phone: shop.phoneNumber,
-                                footer: shop.footerText,
-                                amountPaid: paid,
-                                paymentMethod: _paymentMethod,
-                                upiId: shop.upiId,
-                              ));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Shop details not loaded'),
-                                backgroundColor: Colors.red),
-                          );
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-                child: billingState.isPrinting
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 3),
-                      )
-                    :  Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.print_rounded, size: 18.h),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Print Receipt & Finish',
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Finish without Receipt',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
+                              color: AppTheme.primaryColor,
                               fontWeight: FontWeight.w800,
-                              fontSize: 15.sp,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                        ),
+                        if (_isFinishing) ...[
+                          const SizedBox(width: 10),
+                          const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              color: AppTheme.primaryColor,
+                              strokeWidth: 2.5,
                             ),
                           ),
                         ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: (_isFinishing || _isPrinting || billingState.isPrinting)
+                        ? null
+                        : () {
+                            if (shop != null) {
+                              final paid = billingState.customerId.isNotEmpty
+                                  ? _validatedCustomerAmountToPay(grandTotal)
+                                  : billingState.totalAmount;
+                              if (paid == null) return;
+
+                              setState(() => _isPrinting = true);
+                              context.read<BillingBloc>().add(
+                                    PrintReceiptEvent(
+                                      shopName: shop.name,
+                                      address1: shop.addressLine1,
+                                      address2: shop.addressLine2,
+                                      phone: shop.phoneNumber,
+                                      footer: shop.footerText,
+                                      amountPaid: paid,
+                                      paymentMethod: _paymentMethod,
+                                      upiId: shop.upiId,
+                                    ),
+                                  );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Shop details not loaded'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-              ),
+                    ),
+                    child: billingState.isPrinting
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.print_rounded, size: 18.h),
+                              SizedBox(width: 8.w),
+                              Flexible(
+                                child: Text(
+                                  'Print Receipt & Finish',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
